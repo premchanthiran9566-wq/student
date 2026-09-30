@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Ride – Student Transport Assistant</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@600;700&family=Karla:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --mist: #ebf4ec;
+      --surface: #ffffff;
+      --ink: #172a1c;
+      --ink-soft: #556b5b;
+      --accent: #1b7f3b;
+      --accent-dark: #135e2b;
+      --tint: #ddefe0;
+      --line: #d1e5d5;
+      --error: #a63d3d;
+      --font-display: "Lexend", "Segoe UI", sans-serif;
+      --font-body: "Karla", "Segoe UI", sans-serif;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body { height: 100%; }
+
+    body {
+      background: var(--mist);
+      color: var(--ink);
+      font-family: var(--font-body);
+      font-size: 16px;
+      line-height: 1.55;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 16px;
+    }
+
+    .chat {
+      width: 100%;
+      max-width: 760px;
+      height: min(100%, 820px);
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .chat-header {
+      padding: 18px 24px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .chat-header h1 {
+      font-family: var(--font-display);
+      font-size: 1.5rem;
+      letter-spacing: -0.01em;
+    }
+
+    .chat-header p {
+      color: var(--ink-soft);
+      font-size: 0.9rem;
+    }
+
+    .messages {
+      flex: 1;
+      overflow-y: auto;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .welcome {
+      margin: auto;
+      max-width: 460px;
+      text-align: center;
+    }
+
+    .welcome h2 {
+      font-family: var(--font-display);
+      font-size: 1.6rem;
+      margin-bottom: 6px;
+    }
+
+    .welcome p { color: var(--ink-soft); }
+
+    .suggestions {
+      margin-top: 18px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: center;
+    }
+
+    .suggestions button {
+      font: inherit;
+      font-size: 0.9rem;
+      background: var(--tint);
+      color: var(--accent-dark);
+      border: 0;
+      border-radius: 999px;
+      padding: 8px 14px;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+
+    .suggestions button:hover { background: #c9e3ce; }
+
+    .message {
+      max-width: 82%;
+      padding: 11px 15px;
+      border-radius: 16px;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+    }
+
+    .message.user {
+      align-self: flex-end;
+      background: var(--accent);
+      color: #ffffff;
+      border-bottom-right-radius: 4px;
+    }
+
+    .message.bot {
+      align-self: flex-start;
+      background: var(--tint);
+      border-bottom-left-radius: 4px;
+    }
+
+    .message.error {
+      align-self: flex-start;
+      background: #f8e6e6;
+      color: var(--error);
+    }
+
+    .typing {
+      align-self: flex-start;
+      background: var(--tint);
+      border-radius: 16px;
+      border-bottom-left-radius: 4px;
+      padding: 14px 16px;
+      display: flex;
+      gap: 5px;
+    }
+
+    .typing span {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--ink-soft);
+      animation: pulse 1s infinite ease-in-out;
+    }
+
+    .typing span:nth-child(2) { animation-delay: 0.15s; }
+    .typing span:nth-child(3) { animation-delay: 0.3s; }
+
+    @keyframes pulse {
+      0%, 80%, 100% { opacity: 0.3; }
+      40% { opacity: 1; }
+    }
+
+    .composer {
+      display: flex;
+      gap: 10px;
+      align-items: flex-end;
+      padding: 14px 18px;
+      border-top: 1px solid var(--line);
+    }
+
+    .composer textarea {
+      flex: 1;
+      font: inherit;
+      color: var(--ink);
+      background: var(--mist);
+      border: 1px solid transparent;
+      border-radius: 14px;
+      padding: 11px 14px;
+      resize: none;
+      max-height: 140px;
+    }
+
+    .composer textarea::placeholder { color: var(--ink-soft); }
+
+    .composer textarea:focus-visible,
+    .composer button:focus-visible,
+    .suggestions button:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
+    }
+
+    .composer button {
+      font: inherit;
+      font-weight: 600;
+      background: var(--accent);
+      color: #ffffff;
+      border: 0;
+      border-radius: 14px;
+      padding: 11px 20px;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+
+    .composer button:hover:not(:disabled) { background: var(--accent-dark); }
+    .composer button:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    @media (max-width: 520px) {
+      body { padding: 0; }
+      .chat { height: 100%; border-radius: 0; border: 0; }
+      .message { max-width: 90%; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .typing span { animation: none; opacity: 0.6; }
+    }
+  </style>
+</head>
+<body>
+  <main class="chat">
+    <header class="chat-header">
+      <h1>Ride</h1>
+      <p>Your assistant for school bus routes, passes, and safe commuting</p>
+    </header>
+
+    <section class="messages" id="messages" aria-live="polite">
+      <div class="welcome" id="welcome">
+        <h2>How can I help with student travel?</h2>
+        <p>Ask about buses, passes, routes, safety, or commuting.</p>
+        <div class="suggestions">
+          <button type="button">How to apply for a bus pass</button>
+          <button type="button">Bus safety rules for students</button>
+          <button type="button">What if the bus is late?</button>
+          <button type="button">Set up a school transport system</button>
+        </div>
+      </div>
+    </section>
+
+    <form class="composer" id="composer">
+      <textarea id="input" rows="1" maxlength="2000" placeholder="Type your message" aria-label="Message"></textarea>
+      <button type="submit" id="send">Send</button>
+    </form>
+  </main>
+
+  <script>
+    const messagesEl = document.getElementById("messages");
+    const welcomeEl = document.getElementById("welcome");
+    const composerEl = document.getElementById("composer");
+    const inputEl = document.getElementById("input");
+    const sendEl = document.getElementById("send");
+
+    const history = [];
+    let isLoading = false;
+
+    function escapeHtml(text) {
+      const div = document.createElement("div");
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+    function formatReply(text) {
+      return escapeHtml(text)
+        .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
+        .replace(/^\s*[*-]\s+/gm, "• ");
+    }
+
+    function scrollToBottom() {
+      messagesEl.scrollTop = messagesEl.scrollHeight;
+    }
+
+    function addMessage(text, type) {
+      const el = document.createElement("div");
+      el.className = "message " + type;
+      if (type === "bot") {
+        el.innerHTML = formatReply(text);
+      } else {
+        el.textContent = text;
+      }
+      messagesEl.appendChild(el);
+      scrollToBottom();
+    }
+
+    function showTyping() {
+      const el = document.createElement("div");
+      el.className = "typing";
+      el.innerHTML = "<span></span><span></span><span></span>";
+      messagesEl.appendChild(el);
+      scrollToBottom();
+      return el;
+    }
+
+    function setLoading(state) {
+      isLoading = state;
+      sendEl.disabled = state;
+      inputEl.disabled = state;
+      if (!state) inputEl.focus();
+    }
+
+    function resizeInput() {
+      inputEl.style.height = "auto";
+      inputEl.style.height = inputEl.scrollHeight + "px";
+    }
+
+    async function sendMessage(text) {
+      if (isLoading || !text) return;
+
+      welcomeEl.remove();
+      addMessage(text, "user");
+      history.push({ role: "user", text });
+      inputEl.value = "";
+      resizeInput();
+      setLoading(true);
+      const typing = showTyping();
+
+      try {
+        const response = await fetch("/chat", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ history })
+        });
+        const data = await response.json();
+        typing.remove();
+
+        if (!response.ok) {
+          history.pop();
+          addMessage(data.error || "Something went wrong. Please try again.", "error");
+        } else {
+          history.push({ role: "model", text: data.reply });
+          addMessage(data.reply, "bot");
+        }
+      } catch (error) {
+        typing.remove();
+        history.pop();
+        addMessage("Could not reach the server. Check your connection and try again.", "error");
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    composerEl.addEventListener("submit", (event) => {
+      event.preventDefault();
+      sendMessage(inputEl.value.trim());
+    });
+
+    inputEl.addEventListener("keydown", (event) => {
+      if (event.key === "Enter" && !event.shiftKey) {
+        event.preventDefault();
+        sendMessage(inputEl.value.trim());
+      }
+    });
+
+    inputEl.addEventListener("input", resizeInput);
+
+    document.querySelectorAll(".suggestions button").forEach((button) => {
+      button.addEventListener("click", () => sendMessage(button.textContent));
+    });
+  </script>
+</body>
+</html>
